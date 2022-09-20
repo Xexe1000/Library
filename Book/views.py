@@ -7,15 +7,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-from Book.models import Book, Genre, Comment, Like
+from Book.models import Book, Genre, Comment, Like, Rating, Favorite
 from Book.permissions import BookPermission
-from Book.serializers import BookSerializer, CommentSerializer, DetailSerializer, GenreDescriptionSerializer
+from Book.serializers import BookSerializer, CommentSerializer, DetailSerializer, GenreDescriptionSerializer, \
+    RatingSerializer, FavoritesSerializer
 from django_filters import rest_framework as filters
 
 
 class BookFilter(filters.FilterSet):
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
+    # name = filters.
 
     class Meta:
         model = Book
@@ -46,6 +48,7 @@ class BookView(ModelViewSet):
             owner_name=F('user__username'),
             likes_count=Count('like__like'),
             comment_count=Count('comment__comment'),
+            author_name=F('author')
         ).order_by('-id')
         return queryset
 
@@ -61,6 +64,18 @@ class GenreView(ModelViewSet):
             descriptions_text=Count('description'),
         )
         return queryset
+
+
+class BookRatingView(ModelViewSet):
+    serializer_class = RatingSerializer
+    permission_classes = (BookPermission, )
+    queryset = Rating.objects.all()
+    lookup_field = 'book'
+
+    def get_object(self):
+        obj, created = Rating.objects.get_or_create(user=self.request.user,
+                                                    rest_id=self.kwargs['book'])
+        return obj
 
 
 class CommentView(ModelViewSet):
@@ -79,6 +94,17 @@ class CommentView(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
 
+    # def update(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save(
+    #         user=self.request.user,
+    #         book_id=kwargs.get('comment_pk')
+    #     )
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED,
+    #                     headers=headers)
+
 
 class LikeView(APIView):
 
@@ -93,3 +119,21 @@ class LikeView(APIView):
         else:
             Like.objects.create(book_id=book_pk, user=request.user)
             return Response({'success': 'liked'})
+
+
+class FavoriteView(APIView):
+    serializer_class = FavoritesSerializer
+    permission_classes = (BookPermission,)
+    queryset = Favorite.objects.all()
+
+    def get(self, request, pk):
+        created = Favorite.objects.filter(Book_id=pk, user=request.user).exists()
+        if created:
+            Favorite.objects.filter(
+                Book_id=pk,
+                user=request.user
+            ).delete()
+            return Response({'success': 'removed'})
+        else:
+            Favorite.objects.create(Book_id=pk, user=request.user)
+            return Response({'success': 'in favorite'})

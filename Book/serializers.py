@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Book.models import Book, Genre, Comment, Like, File, Rating
+from Book.models import Book, Genre, Comment, Like, File, Rating, Favorite
 
 
 class RatingSerializer(serializers.ModelSerializer):
@@ -49,6 +49,13 @@ class GenreSerializer(serializers.ModelSerializer):
         }
 
 
+class FavoritesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Favorite
+        fields = ['user', 'book']
+
+
 class BookSerializer(serializers.ModelSerializer):
     comment_count = serializers.IntegerField()
     genre_name = serializers.CharField()
@@ -57,12 +64,13 @@ class BookSerializer(serializers.ModelSerializer):
     rate = RatingSerializer(many=True)
     rating_count = serializers.IntegerField(read_only=True)
     _average_rating = serializers.DecimalField(read_only=True, max_digits=4, decimal_places=2)
+    author_name = serializers.CharField()
 
     class Meta:
         model = Book
         fields = (
             'id', 'name', 'price', 'image', 'genre_name', 'owner_name', '_average_rating',
-            'comment_count', 'type', 'likes_count', 'rate', 'rating_count',
+            'comment_count', 'type', 'likes_count', 'rate', 'rating_count', 'author_name'
         )
         extra_kwargs = {'user': {'read_only': True}}
 
@@ -76,11 +84,12 @@ class DetailSerializer(serializers.ModelSerializer):
     rate = RatingSerializer(many=True)
     rating_count = serializers.IntegerField(read_only=True)
     _average_rating = serializers.DecimalField(read_only=True, max_digits=4, decimal_places=2)
+    author_name = serializers.CharField()
 
     class Meta:
         model = Book
         fields = (
             'id', 'name', 'price', 'description', 'image', 'genre_name', 'rate', 'rating_count',
-            'file', 'comment', 'likes_count', 'type', 'owner_name', '_average_rating',
+            'file', 'comment', 'likes_count', 'type', 'owner_name', '_average_rating', 'author_name'
         )
         extra_kwargs = {'user': {'read_only': True}}

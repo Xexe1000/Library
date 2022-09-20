@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include, re_path
@@ -6,7 +7,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-from Book.views import BookView, GenreView, CommentView, LikeView
+from Book.views import BookView, GenreView, CommentView, LikeView, BookRatingView , FavoriteView
 from custom_auth.views import RegisterView, LoginView
 
 
@@ -32,7 +33,8 @@ urlpatterns = [
                   re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0),
                           name='schema-redoc'),
     path('admin/', admin.site.urls),
-    path('book/', BookView.as_view({'get': 'list', 'post': 'create'})),
+    path('book/', BookView.as_view({'get': 'list'})),
+    path('create/', BookView.as_view({'post': 'create'})),
     path('book/<int:pk>/', BookView.as_view(
         {'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}
     )),
@@ -40,10 +42,18 @@ urlpatterns = [
     path('genre/<int:pk>/', GenreView.as_view(
         {'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}
     )),
+    path('rating/', BookRatingView.as_view({'post': 'create'})),
+    path('rating/<int:pk>', BookRatingView.as_view({'get': 'list'})),
     path('register/', RegisterView.as_view()),
     path('login/', LoginView.as_view()),
-    path('<int:pk>/comment/create/', CommentView.as_view({'post': 'create'})),
+    path('<int:pk>/comment/create/', CommentView.as_view(
+        {'post': 'create', 'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})
+         ),
     path('<int:pk>/like/', LikeView.as_view()),
+    path('<int:pk>/favorite/', FavoriteView.as_view()),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path('silk/', include('silk.urls', namespace='silk'))
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
+
