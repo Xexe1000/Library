@@ -1,12 +1,13 @@
-asgiref==3.2.3
+asgiref==3.5.2
 autopep8==1.5.3
 captcha==0.4
 certifi==2019.11.28
 chardet==3.0.4
 charset-normalizer==2.1.0
+Contacts==1.0
 coreapi==2.3.3
 coreschema==0.0.4
-Django==2.2.5
+Django==4.1.1
 django-admin-sortable2==0.7.3
 django-appconf==1.0.4
 django-bidi-utils==1.0
@@ -47,10 +48,11 @@ Pillow==9.2.0
 polib==1.1.0
 pycodestyle==2.6.0
 Pygments==2.6.1
+PyJWT==2.4.0
 pyparsing==3.0.9
 python-dateutil==2.8.1
 python-memcached==1.59
-pytz==2019.3
+pytz==2022.2.1
 PyYAML==5.4.1
 requests==2.23.0
 ruamel.yaml==0.17.21
@@ -58,6 +60,7 @@ ruamel.yaml.clib==0.2.6
 six==1.14.0
 sqlparse==0.3.0
 toml==0.10.1
+twilio==7.14.0
 ua-parser==0.10.0
 uritemplate==4.1.1
 urllib3==1.25.8
